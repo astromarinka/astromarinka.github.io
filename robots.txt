@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://astro-marinka.ru/sitemap.xml
