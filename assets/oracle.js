@@ -11,6 +11,12 @@
     Li:{Qian:13,Zhen:55,Kan:63,Gen:22,Kun:36,Xun:37,Li:30,Dui:49}, Dui:{Qian:10,Zhen:54,Kan:60,Gen:41,Kun:19,Xun:61,Li:38,Dui:58}
   };
   const find = selector => root.querySelector(selector);
+  const lineRules = {
+    6:{yang:true,changing:true},
+    7:{yang:true,changing:false},
+    8:{yang:false,changing:false},
+    9:{yang:false,changing:true}
+  };
   let lines = [];
   find('#oracle-question').addEventListener('input', event => { find('#oracle-count').textContent = `${event.target.value.length} / 700`; });
   find('.oracle-begin').addEventListener('click', () => {
@@ -30,11 +36,19 @@
     const coins = [0,0,0].map(() => crypto.getRandomValues(new Uint8Array(1))[0] % 2 ? 3 : 2);
     setTimeout(() => {
       coinsBox.classList.remove('tossing');
-      [...coinsBox.children].forEach((coin, index) => { coin.textContent = coins[index] === 3 ? 'Ян' : 'Инь'; });
+      [...coinsBox.children].forEach((coin, index) => {
+        const isYang = coins[index] === 3;
+        coin.src = isYang ? '/assets/iching-coin-yang.png' : '/assets/iching-coin-yin.png';
+        coin.alt = isYang ? 'Сторона Ян — орёл' : 'Сторона Инь — решка';
+      });
       const sum = coins.reduce((total, value) => total + value, 0);
-      lines.push({yang:sum === 7 || sum === 9, changing:sum === 6 || sum === 9});
+      lines.push({...lineRules[sum], coins, sum});
       draw(find('.oracle-progress'), lines);
-      if (lines.length === 6) finish(); else { find('.oracle-step-number').textContent = `Бросок ${lines.length + 1} из 6`; button.disabled = false; }
+      if (lines.length === 6) finish(); else {
+        find('.oracle-step-number').textContent = `Бросок ${lines.length + 1} из 6`;
+        find('.oracle-toss-count').textContent = `Осталось бросков: ${6 - lines.length}`;
+        button.disabled = false;
+      }
     }, 900);
   });
   function draw(node, source) { node.innerHTML = source.map(line => `<span class="oracle-line ${line.yang ? 'yang' : 'yin'} ${line.changing ? 'changing' : ''}"></span>`).join(''); }
@@ -86,6 +100,11 @@
     find('.oracle-api-error').textContent = '';
     find('.oracle-progress').innerHTML = '';
     find('.oracle-step-number').textContent = 'Бросок 1 из 6';
+    find('.oracle-toss-count').textContent = 'Нужно бросить: 6 раз';
+    [...find('.oracle-coins').children].forEach(coin => {
+      coin.src = '/assets/iching-coin-yang.png';
+      coin.alt = 'Сторона Ян — орёл';
+    });
     find('.oracle-toss').disabled = false;
     root.scrollIntoView({behavior:'smooth'});
   });
