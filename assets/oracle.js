@@ -31,22 +31,34 @@
     const button = find('.oracle-toss');
     if (lines.length >= 6 || button.disabled) return;
     button.disabled = true;
+    button.textContent = 'Монеты летят…';
     const coinsBox = find('.oracle-coins');
+    coinsBox.classList.remove('tossing');
+    void coinsBox.offsetWidth;
     coinsBox.classList.add('tossing');
+    find('.oracle-throw-result').textContent = 'Бросаем три монеты…';
     const coins = [0,0,0].map(() => crypto.getRandomValues(new Uint8Array(1))[0] % 2 ? 3 : 2);
     setTimeout(() => {
       coinsBox.classList.remove('tossing');
       [...coinsBox.children].forEach((coin, index) => {
         const isYang = coins[index] === 3;
-        coin.src = isYang ? '/assets/iching-coin-yang.png' : '/assets/iching-coin-yin.png';
-        coin.alt = isYang ? 'Сторона Ян — орёл' : 'Сторона Инь — решка';
+        const image = coin.querySelector('img');
+        coin.dataset.face = isYang ? 'yang' : 'yin';
+        image.src = isYang ? '/assets/iching-coin-yang.png' : '/assets/iching-coin-yin.png';
+        image.alt = isYang ? 'Сторона Ян — орёл' : 'Сторона Инь — решка';
       });
       const sum = coins.reduce((total, value) => total + value, 0);
       lines.push({...lineRules[sum], coins, sum});
+      const sides = coins.map(value => value === 3 ? 'Орёл' : 'Решка').join(' • ');
+      const rule = lineRules[sum];
+      const lineName = rule.yang ? 'сплошная линия' : 'прерывистая линия';
+      const movingName = rule.changing ? ', подвижная' : '';
+      find('.oracle-throw-result').textContent = `${sides} → ${lineName}${movingName}`;
       draw(find('.oracle-progress'), lines);
       if (lines.length === 6) finish(); else {
         find('.oracle-step-number').textContent = `Бросок ${lines.length + 1} из 6`;
         find('.oracle-toss-count').textContent = `Осталось бросков: ${6 - lines.length}`;
+        button.textContent = 'Бросить монеты ещё раз';
         button.disabled = false;
       }
     }, 900);
@@ -101,10 +113,15 @@
     find('.oracle-progress').innerHTML = '';
     find('.oracle-step-number').textContent = 'Бросок 1 из 6';
     find('.oracle-toss-count').textContent = 'Нужно бросить: 6 раз';
-    [...find('.oracle-coins').children].forEach(coin => {
-      coin.src = '/assets/iching-coin-yang.png';
-      coin.alt = 'Сторона Ян — орёл';
+    [...find('.oracle-coins').children].forEach((coin, index) => {
+      const isYang = index !== 1;
+      const image = coin.querySelector('img');
+      coin.dataset.face = isYang ? 'yang' : 'yin';
+      image.src = isYang ? '/assets/iching-coin-yang.png' : '/assets/iching-coin-yin.png';
+      image.alt = isYang ? 'Сторона Ян — орёл' : 'Сторона Инь — решка';
     });
+    find('.oracle-throw-result').textContent = 'Монеты готовы к первому броску';
+    find('.oracle-toss').textContent = 'Бросить монеты';
     find('.oracle-toss').disabled = false;
     root.scrollIntoView({behavior:'smooth'});
   });
