@@ -45,16 +45,12 @@
         const image = coin.querySelector('img');
         coin.dataset.face = isYang ? 'yang' : 'yin';
         image.src = isYang ? '/assets/iching-coin-yang.png' : '/assets/iching-coin-yin.png';
-        image.alt = isYang ? 'Сторона Ян — орёл' : 'Сторона Инь — решка';
+        image.alt = 'Китайская монета после броска';
       });
       const sum = coins.reduce((total, value) => total + value, 0);
       lines.push({...lineRules[sum], coins, sum});
-      const sides = coins.map(value => value === 3 ? 'Орёл' : 'Решка').join(' • ');
-      const rule = lineRules[sum];
-      const lineName = rule.yang ? 'сплошная линия' : 'прерывистая линия';
-      const movingName = rule.changing ? ', подвижная' : '';
-      find('.oracle-throw-result').textContent = `${sides} → ${lineName}${movingName}`;
-      draw(find('.oracle-progress'), lines);
+      find('.oracle-throw-result').textContent = `Бросок ${lines.length} засчитан — линия добавлена`;
+      draw(find('.oracle-progress'), lines, false);
       if (lines.length === 6) finish(); else {
         find('.oracle-step-number').textContent = `Бросок ${lines.length + 1} из 6`;
         find('.oracle-toss-count').textContent = `Осталось бросков: ${6 - lines.length}`;
@@ -63,7 +59,7 @@
       }
     }, 900);
   });
-  function draw(node, source) { node.innerHTML = source.map(line => `<span class="oracle-line ${line.yang ? 'yang' : 'yin'} ${line.changing ? 'changing' : ''}"></span>`).join(''); }
+  function draw(node, source, showChanges = true) { node.innerHTML = source.map(line => `<span class="oracle-line ${line.yang ? 'yang' : 'yin'} ${showChanges && line.changing ? 'changing' : ''}"></span>`).join(''); }
   function hexNumber(bits) { return kw[tri[bits.slice(0,3).join('')]][tri[bits.slice(3,6).join('')]]; }
   function finish() {
     find('.oracle-toss-step').hidden = true;
@@ -118,7 +114,7 @@
       const image = coin.querySelector('img');
       coin.dataset.face = isYang ? 'yang' : 'yin';
       image.src = isYang ? '/assets/iching-coin-yang.png' : '/assets/iching-coin-yin.png';
-      image.alt = isYang ? 'Сторона Ян — орёл' : 'Сторона Инь — решка';
+      image.alt = 'Китайская монета';
     });
     find('.oracle-throw-result').textContent = 'Монеты готовы к первому броску';
     find('.oracle-toss').textContent = 'Бросить монеты';
