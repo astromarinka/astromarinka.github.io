@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#143e32">
+  <meta name="description" content="Задайте вопрос И Цзин, бросьте монеты и получите бережную трактовку без фатальных предсказаний.">
+  <title>Оракул И Цзин — Марина Ахрамович</title>
+  <link rel="stylesheet" href="oracle.css">
+  <script defer src="oracle.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="https://astro-marinka.ru/" aria-label="На сайт Марины Ахрамович">
+      <span class="brand-mark">М<span>А</span></span>
+      <span><b>Марина Ахрамович</b><small>Пространство пяти стихий</small></span>
+    </a>
+    <span class="top-note">И Цзин · личный вопрос</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Древняя мудрость · современный язык</p>
+        <h1>Ответ начинается<br>с правильного вопроса</h1>
+        <p class="lead">Сформулируйте ситуацию, шесть раз бросьте монеты и получите персональную трактовку И Цзин — без фатальности, запугивания и обещаний будущего.</p>
+        <a class="primary" href="#oracle">Задать вопрос бесплатно <span>↓</span></a>
+        <p class="micro">Первый расклад — знакомство с методом</p>
+      </div>
+      <div class="hero-sign" aria-hidden="true">
+        <span>易</span>
+        <i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Принципы сервиса">
+      <span>Одна ситуация</span><b>◆</b><span>Один честный вопрос</span><b>◆</b><span>Практический ориентир</span>
+    </section>
+
+    <section class="oracle-shell" id="oracle">
+      <div class="section-head">
+        <p class="eyebrow">Ваш расклад</p>
+        <h2>О чём вы хотите спросить?</h2>
+        <p>Лучше спрашивать не «случится ли?», а «что мне важно понять и учесть в этой ситуации?»</p>
+      </div>
+
+      <div class="oracle-card">
+        <div class="step question-step">
+          <label for="client-name">Как к вам обращаться <small>(необязательно)</small></label>
+          <input id="client-name" maxlength="60" autocomplete="name" placeholder="Например, Елена">
+          <label for="question">Ваш вопрос</label>
+          <textarea id="question" maxlength="700" rows="4" placeholder="Например: что мне важно учесть, принимая решение о смене работы?"></textarea>
+          <div class="question-meta"><span id="question-count">0 / 700</span><span>Не указывайте чужие личные данные</span></div>
+          <button class="primary" id="begin" type="button">Перейти к монетам <span>→</span></button>
+          <p class="form-error" id="question-error" role="alert"></p>
+        </div>
+
+        <div class="step toss-step" id="toss-step" hidden>
+          <div class="toss-copy">
+            <span class="step-number" id="step-number">Бросок 1 из 6</span>
+            <h3>Сосредоточьтесь на вопросе</h3>
+            <p>Не пытайтесь получить «нужный» результат. Просто удерживайте ситуацию в уме и бросайте монеты.</p>
+          </div>
+          <div class="coins" id="coins" aria-live="polite">
+            <button class="coin" type="button" tabindex="-1"><span>И</span></button>
+            <button class="coin" type="button" tabindex="-1"><span>Ц</span></button>
+            <button class="coin" type="button" tabindex="-1"><span>З</span></button>
+          </div>
+          <button class="primary toss-button" id="toss" type="button">Бросить монеты</button>
+          <div class="line-progress" id="line-progress" aria-label="Построение гексаграммы"></div>
+        </div>
+
+        <div class="step result-step" id="result-step" hidden>
+          <div class="result-grid">
+            <div>
+              <p class="eyebrow">Основная гексаграмма</p>
+              <div class="hexagram" id="primary-lines" aria-hidden="true"></div>
+              <h3 id="primary-title"></h3>
+            </div>
+            <div id="relating-box">
+              <p class="eyebrow">Развитие ситуации</p>
+              <div class="hexagram" id="relating-lines" aria-hidden="true"></div>
+              <h3 id="relating-title"></h3>
+            </div>
+          </div>
+          <p class="changing-note" id="changing-note"></p>
+          <button class="primary" id="interpret" type="button">Получить трактовку</button>
+          <div class="loading" id="loading" hidden><span></span><p>Собираю ответ по гексаграммам и вашему вопросу…</p></div>
+          <div class="answer" id="answer" hidden>
+            <p class="eyebrow">Ответ И Цзин</p>
+            <div id="answer-text"></div>
+          </div>
+          <p class="form-error" id="api-error" role="alert"></p>
+          <button class="restart" id="restart" type="button">Задать другой вопрос</button>
+        </div>
+      </div>
+
+      <aside class="care-note">
+        <b>Важно</b>
+        <p>И Цзин не принимает решение за вас и не заменяет врача, юриста или финансового специалиста. Он помогает увидеть смысл ситуации, противоречия и следующий разумный шаг.</p>
+      </aside>
+    </section>
+
+    <section class="how">
+      <p class="eyebrow">Как это работает</p>
+      <h2>Три спокойных шага</h2>
+      <div class="how-grid">
+        <article><span>01</span><h3>Сформулируйте</h3><p>Одна конкретная ситуация без попытки переложить решение на Оракул.</p></article>
+        <article><span>02</span><h3>Бросьте монеты</h3><p>Шесть бросков строят основную гексаграмму и показывают изменяющиеся линии.</p></article>
+        <article><span>03</span><h3>Осмыслите</h3><p>Ответ объясняет, что происходит, чего не стоит делать и куда направить внимание.</p></article>
+      </div>
+    </section>
+
+    <section class="reviews">
+      <p class="eyebrow">Отзывы участниц</p>
+      <h2>Когда ответ попадает в самую суть</h2>
+      <div class="review-placeholder">Здесь появятся реальные отзывы с разрешения участниц сегодняшнего интерактива.</div>
+    </section>
+
+    <section class="plans" id="plans">
+      <div>
+        <p class="eyebrow">Продолжить диалог</p>
+        <h2>Дополнительные вопросы</h2>
+        <p>Формат и стоимость пакетов сейчас уточняются. Первый вопрос уже можно задать бесплатно.</p>
+      </div>
+      <span class="plans-badge">Скоро</span>
+    </section>
+  </main>
+
+  <footer><b>Марина Ахрамович</b><span>Ба-цзы · Ци Мэнь · И Цзин</span><a href="https://t.me/astro_marinka" target="_blank" rel="noopener">Telegram ↗</a></footer>
+</body>
+</html>
