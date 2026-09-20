@@ -10,7 +10,7 @@ sys.path.insert(0, str(ROOT / "vendor"))
 from fpdf import FPDF  # noqa: E402
 
 
-OUT = Path("/root/.openclaw/workspace/exports/oracle-pdf/oracle-unlimited-preview-v2.pdf")
+OUT = Path("/root/.openclaw/workspace/exports/oracle-pdf/oracle-unlimited-preview-v3.pdf")
 REGULAR = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 GOLD = (154, 111, 28)
@@ -23,10 +23,17 @@ class OraclePDF(FPDF):
     def header(self):
         self.set_fill_color(255, 253, 245)
         self.rect(0, 0, 210, 297, "F")
+        # The same discreet diagonal watermark used across the «5 стихий» PDFs.
+        self.set_font("DejaVu", "", 13)
+        self.set_text_color(232, 223, 205)
+        for y in range(58, 270, 48):
+            self.rotate(35, 105, y)
+            self.text(42, y, "@astro_marinka  •  Пространство пяти стихий")
+            self.rotate(0)
         if self.page_no() > 1:
             self.set_font("DejaVu", "", 8)
             self.set_text_color(*GOLD)
-            self.cell(0, 6, "Астромаринка • Пространство пяти стихий", 0, 1, "R")
+            self.cell(0, 6, "Марина Ахрамович • Пространство пяти стихий", 0, 1, "R")
             self.set_draw_color(213, 183, 119)
             self.line(17, self.get_y(), 193, self.get_y())
             self.ln(5)
@@ -38,7 +45,25 @@ class OraclePDF(FPDF):
         self.ln(2)
         self.set_font("DejaVu", "", 7.6)
         self.set_text_color(*GOLD)
-        self.cell(0, 5, f"Астромаринка • Пространство пяти стихий • @astro_marinka • стр. {self.page_no()}", 0, 0, "C")
+        self.cell(0, 5, f"@astro_marinka • Пространство пяти стихий • стр. {self.page_no()}", 0, 0, "C")
+
+
+def draw_ma_logo(pdf, x, y, size=31):
+    """Reproduce the exact MA monogram construction from the site header."""
+    pdf.set_draw_color(*GOLD)
+    pdf.set_line_width(0.35)
+    pdf.rect(x, y, size, size)
+    pdf.set_draw_color(201, 173, 119)
+    pdf.set_line_width(0.2)
+    pdf.rect(x + 2, y + 2, size - 4, size - 4)
+    pdf.set_text_color(*GREEN)
+    pdf.set_font("DejaVu", "", 20)
+    pdf.set_xy(x + 4, y + 5)
+    pdf.cell(15, 18, "М", 0, 0, "C")
+    pdf.set_text_color(*PURPLE)
+    pdf.set_font("DejaVu", "", 12)
+    pdf.set_xy(x + 16, y + 13)
+    pdf.cell(10, 10, "А", 0, 0, "C")
 
 
 def heading(pdf, text):
@@ -87,7 +112,7 @@ pdf.add_page()
 
 pdf.set_text_color(*GOLD)
 pdf.set_font("DejaVu", "", 10)
-pdf.cell(0, 7, "АСТРОМАРИНКА • ПРОСТРАНСТВО ПЯТИ СТИХИЙ", 0, 1, "C")
+pdf.cell(0, 7, "МАРИНА АХРАМОВИЧ • ПРОСТРАНСТВО ПЯТИ СТИХИЙ", 0, 1, "C")
 pdf.set_text_color(*INK)
 pdf.set_font("DejaVu", "B", 20)
 pdf.multi_cell(0, 10, "Ответ Оракула И Цзин", 0, "C")
@@ -100,25 +125,27 @@ pdf.line(17, pdf.get_y(), 193, pdf.get_y())
 pdf.ln(8)
 
 pdf.set_fill_color(248, 241, 228)
-pdf.rect(17, pdf.get_y(), 176, 43, "F")
-box_y = pdf.get_y() + 5
-pdf.set_xy(23, box_y)
+pdf.rect(17, pdf.get_y(), 176, 52, "F")
+box_top = pdf.get_y()
+draw_ma_logo(pdf, 23, box_top + 10, 31)
+box_y = box_top + 7
+pdf.set_xy(62, box_y)
 pdf.set_font("DejaVu", "B", 9)
 pdf.set_text_color(*INK)
 pdf.cell(28, 6, "Дата запроса:")
 pdf.set_font("DejaVu", "", 9)
 pdf.cell(0, 6, "20 сентября 2026", 0, 1)
-pdf.set_x(23)
+pdf.set_x(62)
 pdf.set_font("DejaVu", "B", 9)
 pdf.cell(28, 6, "Имя:")
 pdf.set_font("DejaVu", "", 9)
 pdf.cell(0, 6, "Марина", 0, 1)
-pdf.set_x(23)
+pdf.set_x(62)
 pdf.set_font("DejaVu", "B", 9)
 pdf.cell(28, 6, "Вопрос:")
 pdf.set_font("DejaVu", "", 9)
-pdf.multi_cell(135, 5.5, "Стоит ли увольняться в октябре и что поможет выйти на доход выше найма?")
-pdf.set_y(box_y + 43)
+pdf.multi_cell(97, 5.5, "Стоит ли увольняться в октябре и что поможет выйти на доход выше найма?")
+pdf.set_y(box_top + 57)
 
 primary = [7, 7, 8, 9, 8, 7]
 relating = [7, 7, 8, 8, 8, 7]
@@ -225,7 +252,7 @@ pdf.set_text_color(*GREEN)
 pdf.cell(0, 7, "Марина Ахрамович", 0, 1, "C")
 pdf.set_font("DejaVu", "", 9)
 pdf.set_text_color(92, 74, 68)
-pdf.multi_cell(0, 6, "Астромаринка • Пространство пяти стихий\nБа-цзы • Ци Мэнь • И Цзин\n@astro_marinka • astro-marinka.ru", 0, "C")
+pdf.multi_cell(0, 6, "Пространство пяти стихий\nБа-цзы • Ци Мэнь • И Цзин\n@astro_marinka • astro-marinka.ru", 0, "C")
 
 OUT.parent.mkdir(parents=True, exist_ok=True)
 pdf.output(str(OUT))
