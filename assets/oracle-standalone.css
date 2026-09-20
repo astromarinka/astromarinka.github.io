@@ -13,9 +13,9 @@
 }
 
 .oracle-standalone .brand-logo {
-  width: 76px;
-  height: 76px;
-  flex: 0 0 76px;
+  width: 62px;
+  height: 62px;
+  flex: 0 0 62px;
   display: block;
   object-fit: cover;
   border-radius: 50%;
@@ -64,9 +64,9 @@
   }
 
   .oracle-standalone .brand-logo {
-    width: 58px;
-    height: 58px;
-    flex-basis: 58px;
+    width: 62px;
+    height: 62px;
+    flex-basis: 62px;
   }
 
   .oracle-standalone .page-content {
