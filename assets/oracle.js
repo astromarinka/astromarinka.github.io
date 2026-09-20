@@ -1,22 +1,86 @@
++(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  if (root) root.IChingCore = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const VERSION = '1.1.0';
+  const RESULT_SCHEMA_VERSION = 'iching-result/1';
+  const BIN_TO_TRIGRAM = Object.freeze({
+    '111': 'Qian', '100': 'Zhen', '010': 'Kan', '001': 'Gen',
+    '000': 'Kun', '011': 'Xun', '101': 'Li', '110': 'Dui',
+  });
+  const KING_WEN = Object.freeze({
+    Qian:{Qian:1,Zhen:34,Kan:5,Gen:26,Kun:11,Xun:9,Li:14,Dui:43},
+    Zhen:{Qian:25,Zhen:51,Kan:3,Gen:27,Kun:24,Xun:42,Li:21,Dui:17},
+    Kan:{Qian:6,Zhen:40,Kan:29,Gen:4,Kun:7,Xun:59,Li:64,Dui:47},
+    Gen:{Qian:33,Zhen:62,Kan:39,Gen:52,Kun:15,Xun:53,Li:56,Dui:31},
+    Kun:{Qian:12,Zhen:16,Kan:8,Gen:23,Kun:2,Xun:20,Li:35,Dui:45},
+    Xun:{Qian:44,Zhen:32,Kan:48,Gen:18,Kun:46,Xun:57,Li:50,Dui:28},
+    Li:{Qian:13,Zhen:55,Kan:63,Gen:22,Kun:36,Xun:37,Li:30,Dui:49},
+    Dui:{Qian:10,Zhen:54,Kan:60,Gen:41,Kun:19,Xun:61,Li:38,Dui:58},
+  });
+  const LINE_RULES = Object.freeze({
+    6:Object.freeze({lineType:'oldYin',yin:true,yang:false,changing:true,changedYin:false,changedYang:true}),
+    7:Object.freeze({lineType:'youngYang',yin:false,yang:true,changing:false,changedYin:false,changedYang:true}),
+    8:Object.freeze({lineType:'youngYin',yin:true,yang:false,changing:false,changedYin:true,changedYang:false}),
+    9:Object.freeze({lineType:'oldYang',yin:false,yang:true,changing:true,changedYin:true,changedYang:false}),
+  });
+
+  function lineFromSum(sum, coins) {
+    const n = Number(sum), rule = LINE_RULES[n];
+    if (!rule) throw new RangeError('Значение линии должно быть 6, 7, 8 или 9.');
+    if (coins !== undefined) {
+      if (!Array.isArray(coins) || coins.length !== 3 || coins.some(v => v !== 2 && v !== 3)) {
+        throw new TypeError('Бросок должен содержать три значения сторон монет: 2 или 3.');
+      }
+      if (coins[0] + coins[1] + coins[2] !== n) throw new Error('Сумма сторон монет не совпадает со значением линии.');
+    }
+    return Object.freeze({sum:n,coins:coins ? coins.slice() : undefined,...rule});
+  }
+
+  function hexagramNumber(bitsBottomUp) {
+    if (!Array.isArray(bitsBottomUp) || bitsBottomUp.length !== 6 || bitsBottomUp.some(v => v !== 0 && v !== 1)) {
+      throw new TypeError('Гексаграмма должна содержать шесть битов 0/1 снизу вверх.');
+    }
+    const lower = BIN_TO_TRIGRAM[bitsBottomUp.slice(0,3).join('')];
+    const upper = BIN_TO_TRIGRAM[bitsBottomUp.slice(3,6).join('')];
+    return {number:KING_WEN[lower][upper],lower,upper};
+  }
+
+  function createReadingPlan(changingLines) {
+    const ordered = Array.from(new Set(changingLines)).sort((a,b) => a-b);
+    if (!ordered.length) return Object.freeze({mode:'stable-primary',primaryRole:'current-situation-and-strategy',movingLineOrder:Object.freeze([]),relatingRole:'not-read-as-separate-forecast'});
+    return Object.freeze({mode:ordered.length===1?'single-moving-node':'moving-nodes-sequence',primaryRole:'current-situation-and-strategy',movingLineOrder:Object.freeze(ordered),relatingRole:'possible-direction-not-guaranteed-future'});
+  }
+
+  function calculate(lineValuesBottomUp) {
+    if (!Array.isArray(lineValuesBottomUp) || lineValuesBottomUp.length !== 6) throw new TypeError('Нужно ровно шесть значений линий снизу вверх.');
+    const lines = lineValuesBottomUp.map(v => lineFromSum(v));
+    const primaryBits = lines.map(line => line.yang ? 1 : 0);
+    const relatingBits = lines.map(line => line.changedYang ? 1 : 0);
+    const changingLines = lines.flatMap((line,index) => line.changing ? [index+1] : []);
+    return Object.freeze({
+      schemaVersion:RESULT_SCHEMA_VERSION,engineVersion:VERSION,method:'three-coins',lineOrder:'bottom-up',
+      lineValues:lineValuesBottomUp.slice(),lines,changingLines,
+      primary:Object.freeze({...hexagramNumber(primaryBits),bits:primaryBits}),
+      relating:Object.freeze({...hexagramNumber(relatingBits),bits:relatingBits}),
+      readingPlan:createReadingPlan(changingLines),
+    });
+  }
+
+  return Object.freeze({VERSION,RESULT_SCHEMA_VERSION,LINE_RULES,lineFromSum,hexagramNumber,createReadingPlan,calculate});
+});
+
 (() => {
   'use strict';
   const root = document.getElementById('oracle-app');
   if (!root) return;
   const names = ['Творчество','Исполнение','Начальная трудность','Недознание','Ожидание','Тяжба','Войско','Приближение','Воспитание малым','Наступление','Расцвет','Упадок','Единомышленники','Владение многим','Смирение','Вольность','Последование','Исправление порчи','Посещение','Созерцание','Стиснутые зубы','Убранство','Разрушение','Возврат','Беспорочность','Воспитание великим','Питание','Перегрузка','Бездна','Сияние','Взаимодействие','Постоянство','Бегство','Мощь великого','Восход','Поражение света','Домашние','Разлад','Препятствие','Разрешение','Убыль','Приумножение','Выход','Перечение','Собирание','Подъём','Истощение','Колодец','Смена','Котёл','Молния','Сосредоточенность','Течение','Невеста','Изобилие','Странствие','Проникновение','Радость','Раздробление','Ограничение','Внутренняя правда','Превосходство малого','Уже конец','Ещё не конец'];
-  const tri = {'111':'Qian','100':'Zhen','010':'Kan','001':'Gen','000':'Kun','011':'Xun','101':'Li','110':'Dui'};
-  const kw = {
-    Qian:{Qian:1,Zhen:34,Kan:5,Gen:26,Kun:11,Xun:9,Li:14,Dui:43}, Zhen:{Qian:25,Zhen:51,Kan:3,Gen:27,Kun:24,Xun:42,Li:21,Dui:17},
-    Kan:{Qian:6,Zhen:40,Kan:29,Gen:4,Kun:7,Xun:59,Li:64,Dui:47}, Gen:{Qian:33,Zhen:62,Kan:39,Gen:52,Kun:15,Xun:53,Li:56,Dui:31},
-    Kun:{Qian:12,Zhen:16,Kan:8,Gen:23,Kun:2,Xun:20,Li:35,Dui:45}, Xun:{Qian:44,Zhen:32,Kan:48,Gen:18,Kun:46,Xun:57,Li:50,Dui:28},
-    Li:{Qian:13,Zhen:55,Kan:63,Gen:22,Kun:36,Xun:37,Li:30,Dui:49}, Dui:{Qian:10,Zhen:54,Kan:60,Gen:41,Kun:19,Xun:61,Li:38,Dui:58}
-  };
   const find = selector => root.querySelector(selector);
-  const lineRules = {
-    6:{yang:true,changing:true},
-    7:{yang:true,changing:false},
-    8:{yang:false,changing:false},
-    9:{yang:false,changing:true}
-  };
+  const core = window.IChingCore;
+  if (!core) throw new Error('Не загружено единое ядро И Цзин.');
   let lines = [];
   find('#oracle-question').addEventListener('input', event => { find('#oracle-count').textContent = `${event.target.value.length} / 700`; });
   find('.oracle-begin').addEventListener('click', () => {
@@ -48,7 +112,7 @@
         image.alt = 'Китайская монета после броска';
       });
       const sum = coins.reduce((total, value) => total + value, 0);
-      lines.push({...lineRules[sum], coins, sum});
+      lines.push(core.lineFromSum(sum, coins));
       find('.oracle-throw-result').textContent = `Бросок ${lines.length} засчитан — линия добавлена`;
       draw(find('.oracle-progress'), lines, false);
       if (lines.length === 6) finish(); else {
@@ -60,14 +124,12 @@
     }, 900);
   });
   function draw(node, source, showChanges = true) { node.innerHTML = source.map(line => `<span class="oracle-line ${line.yang ? 'yang' : 'yin'} ${showChanges && line.changing ? 'changing' : ''}"></span>`).join(''); }
-  function hexNumber(bits) { return kw[tri[bits.slice(0,3).join('')]][tri[bits.slice(3,6).join('')]]; }
   function finish() {
     find('.oracle-toss-step').hidden = true;
     find('.oracle-result-step').hidden = false;
-    const bits = lines.map(line => line.yang ? 1 : 0);
-    const changed = lines.map(line => line.changing ? (line.yang ? 0 : 1) : (line.yang ? 1 : 0));
-    const primary = hexNumber(bits), relating = hexNumber(changed);
-    const moving = lines.map((line, index) => line.changing ? index + 1 : null).filter(Boolean);
+    const result = core.calculate(lines.map(line => line.sum));
+    const primary = result.primary.number, relating = result.relating.number;
+    const moving = result.changingLines;
     find('.oracle-primary-title').textContent = `№${primary} «${names[primary - 1]}»`;
     find('.oracle-relating-title').textContent = `№${relating} «${names[relating - 1]}»`;
     draw(find('.oracle-primary-lines'), lines);
@@ -83,10 +145,11 @@
     find('.oracle-api-error').textContent = '';
     find('.oracle-loading').hidden = false;
     find('.oracle-answer').hidden = true;
-    const primary = Number(button.dataset.primary), relating = Number(button.dataset.relating);
-    const changingLines = lines.map((line,index) => line.changing ? index + 1 : null).filter(Boolean);
+    const result = core.calculate(lines.map(line => line.sum));
+    const primary = result.primary.number, relating = result.relating.number;
+    const changingLines = result.changingLines;
     try {
-      const response = await fetch('/api/public/iching', {method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body:JSON.stringify({question:find('#oracle-question').value.trim(), clientName:find('#oracle-name').value.trim(), hexagram1:{num:primary,name:names[primary-1]}, hexagram2:{num:relating,name:names[relating-1]}, changingLines})});
+      const response = await fetch('/api/public/iching', {method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body:JSON.stringify({question:find('#oracle-question').value.trim(), clientName:find('#oracle-name').value.trim(), oracleResult:result, lineValues:result.lineValues, engineVersion:result.engineVersion, hexagram1:{num:primary,name:names[primary-1]}, hexagram2:{num:relating,name:names[relating-1]}, changingLines})});
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.answer) throw new Error(data.error || 'Не удалось получить ответ. Попробуйте ещё раз.');
       find('.oracle-answer-text').textContent = data.answer;
