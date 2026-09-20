@@ -57,6 +57,10 @@
   display: none;
 }
 
+.oracle-standalone .oracle-pdf {
+  margin-top: 24px;
+}
+
 @media (max-width: 760px) {
   .oracle-standalone .header-inner {
     min-height: 84px;

@@ -82,6 +82,7 @@
   const core = window.IChingCore;
   if (!core) throw new Error('Не загружено единое ядро И Цзин.');
   let lines = [];
+  let lastPdfPayload = null;
   find('#oracle-question').addEventListener('input', event => { find('#oracle-count').textContent = `${event.target.value.length} / 700`; });
   find('.oracle-begin').addEventListener('click', () => {
     const question = find('#oracle-question').value.trim();
@@ -157,6 +158,14 @@
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.answer) throw new Error(data.error || 'Не удалось получить ответ. Попробуйте ещё раз.');
       find('.oracle-answer-text').textContent = data.answer;
+      lastPdfPayload = data.pdfToken ? {
+        token:data.pdfToken, issuedAt:data.pdfIssuedAt,
+        question:find('#oracle-question').value.trim(), clientName:find('#oracle-name').value.trim(),
+        answer:data.answer, lineValues:result.lineValues,
+        hexagram1:{num:primary,name:names[primary-1]}, hexagram2:{num:relating,name:names[relating-1]},
+        changingLines,
+      } : null;
+      find('.oracle-pdf').hidden = !lastPdfPayload;
       find('.oracle-answer').hidden = false;
       button.hidden = true;
       find('.oracle-answer').scrollIntoView({behavior:'smooth', block:'start'});
@@ -172,11 +181,44 @@
       if (button.hidden) button.textContent = idleLabel;
     }
   });
+  find('.oracle-pdf').addEventListener('click', async event => {
+    if (!lastPdfPayload) return;
+    const button = event.currentTarget;
+    const label = button.textContent;
+    button.disabled = true;
+    button.textContent = 'Готовлю PDF…';
+    find('.oracle-api-error').textContent = '';
+    try {
+      const response = await fetch('https://5stihii.astro-marinka.ru/api/public/oracle-pdf', {
+        method:'POST', credentials:'omit', headers:{'Content-Type':'application/json'}, body:JSON.stringify(lastPdfPayload),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Не удалось сформировать PDF.');
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'oracle-iching.pdf';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 30000);
+    } catch (error) {
+      find('.oracle-api-error').textContent = error.message || 'Не удалось сформировать PDF.';
+    } finally {
+      button.disabled = false;
+      button.textContent = label;
+    }
+  });
   find('.oracle-restart').addEventListener('click', () => {
     lines = [];
+    lastPdfPayload = null;
     find('.oracle-result-step').hidden = true;
     find('.oracle-question-step').hidden = false;
     find('.oracle-answer').hidden = true;
+    find('.oracle-pdf').hidden = true;
     find('.oracle-interpret').hidden = false;
     find('.oracle-interpret').disabled = false;
     find('.oracle-api-error').textContent = '';
