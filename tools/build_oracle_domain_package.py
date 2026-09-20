@@ -18,12 +18,11 @@ def main() -> None:
 
     html = (ROOT / "oracle" / "index.html").read_text(encoding="utf-8")
     html = html.replace('href="/assets/style.css"', 'href="/oracle/assets/style.css"')
-    html = html.replace('href="/assets/oracle-standalone.css"', 'href="/oracle/assets/oracle-standalone.css"')
+    html = html.replace('/assets/oracle-standalone.css', '/oracle/assets/oracle-standalone.css')
     html = html.replace('src="/assets/site.js"', 'src="/oracle/assets/site.js"')
     html = html.replace('src="/assets/oracle.js"', 'src="/oracle/assets/oracle.js"')
     html = html.replace('src="/assets/oracle-marina.jpg"', 'src="/oracle/assets/oracle-marina.jpg"')
-    html = html.replace('src="/assets/marina-logo.png"', 'src="/oracle/assets/marina-logo.png"')
-    html = html.replace('href="/assets/marina-logo.png"', 'href="/oracle/assets/marina-logo.png"')
+    html = html.replace('/assets/marina-logo.png', '/oracle/assets/marina-logo.png')
     html = html.replace('src="/assets/iching-coin-', 'src="/oracle/assets/iching-coin-')
     (OUT / "index.html").write_text(html, encoding="utf-8")
 
