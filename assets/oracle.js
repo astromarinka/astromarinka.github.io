@@ -141,15 +141,19 @@
   }
   find('.oracle-interpret').addEventListener('click', async event => {
     const button = event.currentTarget;
+    const idleLabel = button.textContent;
     button.disabled = true;
+    button.textContent = 'Получаю трактовку…';
     find('.oracle-api-error').textContent = '';
     find('.oracle-loading').hidden = false;
     find('.oracle-answer').hidden = true;
     const result = core.calculate(lines.map(line => line.sum));
     const primary = result.primary.number, relating = result.relating.number;
     const changingLines = result.changingLines;
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 55000);
     try {
-      const response = await fetch('https://5stihii.astro-marinka.ru/api/public/iching', {method:'POST', credentials:'omit', headers:{'Content-Type':'application/json'}, body:JSON.stringify({question:find('#oracle-question').value.trim(), clientName:find('#oracle-name').value.trim(), oracleResult:result, lineValues:result.lineValues, engineVersion:result.engineVersion, hexagram1:{num:primary,name:names[primary-1]}, hexagram2:{num:relating,name:names[relating-1]}, changingLines})});
+      const response = await fetch('https://5stihii.astro-marinka.ru/api/public/iching', {method:'POST', credentials:'omit', signal:controller.signal, headers:{'Content-Type':'application/json'}, body:JSON.stringify({question:find('#oracle-question').value.trim(), clientName:find('#oracle-name').value.trim(), oracleResult:result, lineValues:result.lineValues, engineVersion:result.engineVersion, hexagram1:{num:primary,name:names[primary-1]}, hexagram2:{num:relating,name:names[relating-1]}, changingLines})});
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.answer) throw new Error(data.error || 'Не удалось получить ответ. Попробуйте ещё раз.');
       find('.oracle-answer-text').textContent = data.answer;
@@ -157,9 +161,16 @@
       button.hidden = true;
       find('.oracle-answer').scrollIntoView({behavior:'smooth', block:'start'});
     } catch (error) {
-      find('.oracle-api-error').textContent = error.message || 'Ошибка соединения. Попробуйте ещё раз.';
+      find('.oracle-api-error').textContent = error && error.name === 'AbortError'
+        ? 'Оракул сейчас отвечает слишком долго. Ваш вопрос и расклад сохранены — попробуйте ещё раз.'
+        : (error.message || 'Ошибка соединения. Ваш вопрос и расклад сохранены — попробуйте ещё раз.');
       button.disabled = false;
-    } finally { find('.oracle-loading').hidden = true; }
+      button.textContent = 'Повторить попытку';
+    } finally {
+      window.clearTimeout(timeoutId);
+      find('.oracle-loading').hidden = true;
+      if (button.hidden) button.textContent = idleLabel;
+    }
   });
   find('.oracle-restart').addEventListener('click', () => {
     lines = [];
