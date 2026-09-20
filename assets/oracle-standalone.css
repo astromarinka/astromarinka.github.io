@@ -5,6 +5,43 @@
   background: rgba(250, 247, 239, .97);
 }
 
+.oracle-standalone .oracle-method-intro {
+  margin: 24px 0 10px !important;
+  color: var(--malachite) !important;
+  font-weight: 700;
+}
+
+.oracle-standalone .oracle-method-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.oracle-standalone .oracle-method-list li {
+  position: relative;
+  margin: 5px 0;
+  padding-left: 25px;
+}
+
+.oracle-standalone .oracle-method-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  font-weight: 800;
+}
+
+.oracle-standalone .oracle-audience-pro > span {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 2px;
+  background: #fff7ea;
+  color: var(--malachite);
+  font-size: 12px;
+}
+
 .oracle-standalone .header-inner {
   min-height: 104px;
   max-width: 1180px;
