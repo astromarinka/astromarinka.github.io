@@ -12,6 +12,18 @@
   padding: 20px 30px;
 }
 
+.oracle-standalone .brand-logo {
+  width: 76px;
+  height: 76px;
+  flex: 0 0 76px;
+  display: block;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(184, 146, 80, .65),
+              0 0 0 5px rgba(255, 250, 242, .95),
+              0 0 0 6px rgba(184, 146, 80, .25);
+}
+
 .oracle-standalone .brand-motto,
 .oracle-standalone .toplinks,
 .oracle-standalone .menu-toggle,
@@ -49,6 +61,12 @@
   .oracle-standalone .header-inner {
     min-height: 84px;
     padding: 14px 18px;
+  }
+
+  .oracle-standalone .brand-logo {
+    width: 58px;
+    height: 58px;
+    flex-basis: 58px;
   }
 
   .oracle-standalone .page-content {
