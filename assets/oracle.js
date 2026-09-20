@@ -149,7 +149,7 @@
     const primary = result.primary.number, relating = result.relating.number;
     const changingLines = result.changingLines;
     try {
-      const response = await fetch('/api/public/iching', {method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body:JSON.stringify({question:find('#oracle-question').value.trim(), clientName:find('#oracle-name').value.trim(), oracleResult:result, lineValues:result.lineValues, engineVersion:result.engineVersion, hexagram1:{num:primary,name:names[primary-1]}, hexagram2:{num:relating,name:names[relating-1]}, changingLines})});
+      const response = await fetch('https://5stihii.astro-marinka.ru/api/public/iching', {method:'POST', credentials:'omit', headers:{'Content-Type':'application/json'}, body:JSON.stringify({question:find('#oracle-question').value.trim(), clientName:find('#oracle-name').value.trim(), oracleResult:result, lineValues:result.lineValues, engineVersion:result.engineVersion, hexagram1:{num:primary,name:names[primary-1]}, hexagram2:{num:relating,name:names[relating-1]}, changingLines})});
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.answer) throw new Error(data.error || 'Не удалось получить ответ. Попробуйте ещё раз.');
       find('.oracle-answer-text').textContent = data.answer;
