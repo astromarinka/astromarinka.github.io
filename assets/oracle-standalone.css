@@ -98,6 +98,66 @@
   margin-top: 24px;
 }
 
+.oracle-standalone .oracle-cta {
+  display: inline-flex;
+  width: auto;
+  margin-top: 24px;
+  text-decoration: none;
+}
+
+.oracle-standalone .oracle-cta-center {
+  margin-top: 26px;
+}
+
+.oracle-standalone .oracle-pdf-example {
+  display: block;
+  margin-top: 20px;
+  padding: 13px 15px;
+  border: 1px solid rgba(128, 106, 69, .28);
+  border-radius: 10px;
+  background: rgba(255, 253, 248, .78);
+  color: var(--malachite);
+  text-decoration: none;
+}
+
+.oracle-standalone .oracle-pdf-example span,
+.oracle-standalone .oracle-pdf-example strong {
+  display: block;
+}
+
+.oracle-standalone .oracle-pdf-example span {
+  margin-bottom: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.oracle-standalone .oracle-pdf-example strong {
+  font-size: 14px;
+}
+
+.oracle-standalone .oracle-before-form {
+  margin: 54px 0 18px;
+  padding: 18px 22px;
+  border-left: 4px solid var(--gold);
+  background: #f7f0e4;
+  color: var(--malachite);
+}
+
+.oracle-standalone .oracle-before-form strong {
+  font-family: var(--display);
+  font-size: 22px;
+}
+
+.oracle-standalone .oracle-before-form p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.oracle-standalone .oracle-workspace {
+  scroll-margin-top: 20px;
+}
+
 @media (max-width: 760px) {
   .oracle-standalone .header-inner {
     min-height: 84px;
@@ -117,5 +177,15 @@
 
   .oracle-standalone .footer-inner {
     grid-template-columns: 1fr;
+  }
+
+  .oracle-standalone .oracle-cta {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .oracle-standalone .oracle-before-form {
+    margin-top: 38px;
+    padding: 16px 18px;
   }
 }
