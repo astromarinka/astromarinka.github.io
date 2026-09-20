@@ -1,0 +1,62 @@
+/* Standalone Oracle landing: keep the Oracle content, remove the main-site shell. */
+.oracle-standalone .topbar {
+  position: static;
+  border-bottom: 1px solid var(--line);
+  background: rgba(250, 247, 239, .97);
+}
+
+.oracle-standalone .header-inner {
+  min-height: 104px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 20px 30px;
+}
+
+.oracle-standalone .brand-motto,
+.oracle-standalone .toplinks,
+.oracle-standalone .menu-toggle,
+.oracle-standalone .nav-wrap,
+.oracle-standalone .resource-sidebar,
+.oracle-standalone .crumbs,
+.oracle-standalone .dialog {
+  display: none !important;
+}
+
+.oracle-standalone .site-columns {
+  display: block;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.oracle-standalone .page-content {
+  width: min(1180px, calc(100% - 60px));
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 42px 0 80px;
+}
+
+.oracle-standalone .footer-inner {
+  grid-template-columns: 1fr auto;
+  max-width: 1180px;
+}
+
+.oracle-standalone .footer-links {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .oracle-standalone .header-inner {
+    min-height: 84px;
+    padding: 14px 18px;
+  }
+
+  .oracle-standalone .page-content {
+    width: min(100% - 32px, 1180px);
+    padding: 24px 0 56px;
+  }
+
+  .oracle-standalone .footer-inner {
+    grid-template-columns: 1fr;
+  }
+}
