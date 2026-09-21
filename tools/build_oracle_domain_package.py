@@ -7,6 +7,7 @@ import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "dist" / "oracle"
+PDF_PREVIEW = Path("/root/.openclaw/workspace/exports/oracle-pdf/oracle-unlimited-preview-v4.pdf")
 
 
 def main() -> None:
@@ -28,6 +29,10 @@ def main() -> None:
     html = html.replace('href="/politika-konfidencialnosti/"', 'href="/oracle/politika-konfidencialnosti/"')
     html = html.replace('href="/soglasie-na-obrabotku-dannyh/"', 'href="/oracle/soglasie-na-obrabotku-dannyh/"')
     (OUT / "index.html").write_text(html, encoding="utf-8")
+
+    if not PDF_PREVIEW.is_file():
+        raise FileNotFoundError(f"Oracle PDF preview is missing: {PDF_PREVIEW}")
+    shutil.copy2(PDF_PREVIEW, OUT / "example-oracle-answer.pdf")
 
     for slug in ("politika-konfidencialnosti", "soglasie-na-obrabotku-dannyh"):
         legal_html = (ROOT / slug / "index.html").read_text(encoding="utf-8")
