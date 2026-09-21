@@ -86,12 +86,27 @@
 }
 
 .oracle-standalone .footer-inner {
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
   max-width: 1180px;
 }
 
 .oracle-standalone .footer-links {
   display: none;
+}
+
+.oracle-standalone .oracle-legal-links {
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  font-size: 13px;
+}
+
+.oracle-standalone .oracle-legal-links span {
+  margin-bottom: 3px;
+  color: #d0b079;
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
 }
 
 .oracle-standalone .oracle-pdf {

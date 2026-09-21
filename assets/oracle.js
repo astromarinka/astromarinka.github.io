@@ -77,6 +77,31 @@
   'use strict';
   const root = document.getElementById('oracle-app');
   if (!root) return;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  document.querySelectorAll('a.oracle-cta[href="#oracle-app"]').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      if (reduceMotion.matches) {
+        root.scrollIntoView({block:'start'});
+        return;
+      }
+      const start = window.scrollY;
+      const end = root.getBoundingClientRect().top + start - 20;
+      const distance = end - start;
+      const duration = Math.min(1800, Math.max(950, Math.abs(distance) * 0.42));
+      const startedAt = performance.now();
+      const ease = progress => progress < .5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      const frame = now => {
+        const progress = Math.min(1, (now - startedAt) / duration);
+        window.scrollTo(0, start + distance * ease(progress));
+        if (progress < 1) window.requestAnimationFrame(frame);
+        else history.replaceState(null, '', '#oracle-app');
+      };
+      window.requestAnimationFrame(frame);
+    });
+  });
   const names = ['Творчество','Исполнение','Начальная трудность','Недознание','Ожидание','Тяжба','Войско','Приближение','Воспитание малым','Наступление','Расцвет','Упадок','Единомышленники','Владение многим','Смирение','Вольность','Последование','Исправление порчи','Посещение','Созерцание','Стиснутые зубы','Убранство','Разрушение','Возврат','Беспорочность','Воспитание великим','Питание','Перегрузка','Бездна','Сияние','Взаимодействие','Постоянство','Бегство','Мощь великого','Восход','Поражение света','Домашние','Разлад','Препятствие','Разрешение','Убыль','Приумножение','Выход','Перечение','Собирание','Подъём','Истощение','Колодец','Смена','Котёл','Молния','Сосредоточенность','Течение','Невеста','Изобилие','Странствие','Проникновение','Радость','Раздробление','Ограничение','Внутренняя правда','Превосходство малого','Уже конец','Ещё не конец'];
   const find = selector => root.querySelector(selector);
   const core = window.IChingCore;
