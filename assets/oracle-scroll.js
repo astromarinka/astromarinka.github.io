@@ -11,15 +11,10 @@
     event.preventDefault();
     event.stopImmediatePropagation();
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      target.scrollIntoView({block: 'start'});
-      return;
-    }
-
     const start = window.scrollY;
     const end = target.getBoundingClientRect().top + start - 20;
     const distance = end - start;
-    const duration = Math.min(2200, Math.max(1100, Math.abs(distance) * 0.48));
+    const duration = Math.min(2600, Math.max(1500, Math.abs(distance) * 0.58));
     const startedAt = performance.now();
     const ease = progress => progress < 0.5
       ? 4 * progress * progress * progress
